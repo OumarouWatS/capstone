@@ -16,7 +16,8 @@ const styles = StyleSheet.create({
   },
   map: {
     width: '100%',
-    height: '60%',
-    top: '80%',
+    height: '80%',
+    top: '20%',
+    padding: 5,
   }
 })
