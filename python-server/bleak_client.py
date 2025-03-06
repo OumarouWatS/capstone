@@ -23,6 +23,8 @@ UART_SERVICE_UUID = "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"
 UART_RX_CHAR_UUID = "6E400002-B5A3-F393-E0A9-E50E24DCCA9E"
 UART_TX_CHAR_UUID = "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
 
+READ_CHAR = "2A6E"
+
 
 # TIP: you can get this function and more from the ``more-itertools`` package.
 def sliced(data: bytes, n: int) -> Iterator[bytes]:
@@ -43,7 +45,7 @@ async def main(address):
             print(f"Failed to connect to {address}")
         time.sleep(5)
 
-        await client.start_notify(UART_TX_CHAR_UUID, handle_rx)
+        await client.start_notify(READ_CHAR, handle_rx)
 
         print("Connected, start typing and press ENTER...")
 
@@ -51,7 +53,12 @@ async def main(address):
         nus = client.services.get_service(UART_SERVICE_UUID)
         rx_char = nus.get_characteristic(UART_RX_CHAR_UUID)
 
+        from_pi = await client.read_gatt_char(READ_CHAR)
+        print("Data from pi: " + str(from_pi))
+
+
         while True:
+
             # This waits until you type a line and press ENTER.
             # A real terminal program might put stdin in raw mode so that things
             # like CTRL+C get passed to the remote device.
