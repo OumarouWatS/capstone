@@ -1,109 +1,93 @@
-import { StyleSheet, Image, Platform } from 'react-native';
+import React, { useState } from 'react';
+import MapView, { Marker } from 'react-native-maps';
+import { StyleSheet, View, Text, Alert } from 'react-native';
 
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
+export default function App() {
+  const [destination, setDestination] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [coordinatesList, setCoordinatesList] = useState<{ latitude: number; longitude: number }[]>([]); // Store coordinates
+  const [region, setRegion] = useState({
+    latitude: 37.78825,
+    longitude: -122.4324,
+    latitudeDelta: 0.0922,
+    longitudeDelta: 0.0421,
+  }); // Region state to control the map center
 
-export default function TabTwoScreen() {
+  // Handle the map press event
+  const handleMapPress = (event: any) => {
+    const { coordinate } = event.nativeEvent; // Accessing the coordinate from nativeEvent
+    setDestination(coordinate); // Set the destination state
+
+    // Add the new coordinate to the list of coordinates
+    setCoordinatesList((prevCoordinates) => [...prevCoordinates, coordinate]);
+
+    // Center the map on the selected coordinate
+    setRegion({
+      ...region,
+      latitude: coordinate.latitude,
+      longitude: coordinate.longitude,
+    });
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Explore</ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image source={require('@/assets/images/react-logo.png')} style={{ alignSelf: 'center' }} />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText> to see how to load{' '}
-          <ThemedText style={{ fontFamily: 'SpaceMono' }}>
-            custom fonts such as this one.
-          </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user's current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful <ThemedText type="defaultSemiBold">react-native-reanimated</ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+    <View style={styles.container}>
+      {/* Display the list of coordinates */}
+      <View style={styles.coordinatesContainer}>
+        <Text style={styles.header}>Saved Coordinates:</Text>
+        {coordinatesList.length > 0 ? (
+          coordinatesList.map((coord, index) => (
+            <Text key={index} style={styles.coordinate}>
+              Latitude: {coord.latitude.toFixed(4)}, Longitude: {coord.longitude.toFixed(4)}
+            </Text>
+          ))
+        ) : (
+          <Text style={styles.coordinate}>No coordinates saved yet</Text>
+        )}
+      </View>
+
+      <View style={styles.mapContainer}>
+        <MapView
+          style={styles.map}
+          region={region} // Set the map region to control its center
+          onPress={handleMapPress} // Handle onPress event
+        >
+          {destination && (
+            <Marker coordinate={destination} title="POI" /> // Show Marker at the selected coordinate
+          )}
+        </MapView>
+      </View>
+
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  container: {
+    flex: 1,
+    flexDirection: 'column',
   },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
+  mapContainer: {
+    flex: 1,
+  },
+  map: {
+    width: '100%',
+    height: '80%',
+    top: '10%',
+    padding: 10,
+  },
+  coordinatesContainer: {
+    top: '5%',
+    padding: 10,
+    backgroundColor: '#90EE90',
+    borderTopWidth: 1,
+    borderTopColor: '#ccc',
+    maxHeight: 200,
+  },
+  header: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  coordinate: {
+    fontSize: 16,
+    marginVertical: 5,
   },
 });

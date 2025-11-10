@@ -1,64 +1,44 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button } from 'react-native';
-
-interface ServerMessage {
-  message: string;
-}
+import { View, Text, StyleSheet } from 'react-native';
+import RoverController from '@/components/RoverController';
+import { ThemedText } from '@/components/ThemedText';
 
 const App = () => {
-  const [serverMessage, setServerMessage] = useState<string>('');
-  const [ws, setWs] = useState<WebSocket | null>(null);
-
-  useEffect(() => {
-    // Connect to the Raspberry Pi WebSocket server
-    const socket = new WebSocket('ws://<raspberry_pi_ip>:3000'); // Replace with Raspberry Pi's IP
-
-    // When the WebSocket connection is established
-    socket.onopen = () => {
-      console.log('Connected to WebSocket server');
-      // Send a message to Raspberry Pi after connecting
-      socket.send(JSON.stringify({ message: 'Hello from React Native!' }));
-    };
-
-    // When a message is received from Raspberry Pi
-    socket.onmessage = (event: MessageEvent) => {
-      const data: ServerMessage = JSON.parse(event.data);
-      setServerMessage(data.message);  // Display message from Raspberry Pi
-    };
-
-    // Handle WebSocket errors
-    socket.onerror = (error: Event) => {
-      console.log('WebSocket error: ', error);
-    };
-
-    // When the WebSocket connection is closed
-    socket.onclose = () => {
-      console.log('Disconnected from WebSocket server');
-    };
-
-    // Save the socket instance to close it later
-    setWs(socket);
-
-    // Clean up the WebSocket connection on component unmount
-    return () => {
-      if (socket) socket.close();
-    };
-  }, []);
-
-  // Send a message to Raspberry Pi when the button is pressed
-  const sendMessageToPi = () => {
-    if (ws) {
-      ws.send(JSON.stringify({ message: 'Hello again from React Native!' }));
-    }
-  };
-
   return (
-    <View>
-      <Text>Message from Raspberry Pi: {serverMessage}</Text>
-      <Button title="Send Message" onPress={sendMessageToPi} />
+    <View style={styles.container}>
+      <View style={styles.feed}>
+        <Text>The rover camera feed goes here!</Text>
+      </View>
+      <View style={styles.controller}>
+        <RoverController />
+      </View>
     </View>
   );
 };
 
-export default App;
+const styles = StyleSheet.create({
+  container: {
+    flex: 1, 
+    backgroundColor: '#C0C0C0', 
+    //justifyContent: 'center',
+    //alignItems: 'center',
+  },
+  controller: {
+    top: '20%',
+    left: '10%',
+    //margin: 5,
+  },
+  feed: {
+    padding: 10,
+    backgroundColor: '#ADD8E6', // Blue background
+    borderRadius: 5,
+    left: '5%',
+    alignItems: 'center', // Center the text horizontally
+    top: '10%',
+    width: '90%',
+    height: '50%',
+  },
+  
+});
 
+export default App;

@@ -37,14 +37,14 @@ export default function TabLayout() {
         name="monitor"
         options={{
           title: 'Monitor',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="eye.fill" color={color} />,
         }}
       />
       <Tabs.Screen
         name="autonomy"
         options={{
           title: 'Autonomy',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="car.fill" color={color} />,
         }}
       />
     </Tabs>
